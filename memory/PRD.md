@@ -18,12 +18,20 @@ Build a prototype for founders. A standalone single-page web tool that surfaces 
 - `GET /api/stats` — aggregate counts (proof of activity for pitch)
 
 ## Implemented (2026-04-26)
+### v1 — initial prototype
 - 4-segment single-page flow with full data-testid coverage on every interactive element
 - Real Gemini 3 Flash few-shot RAG scoring (NOT mocked — actual ML calls)
 - Dataset-grounded inbox simulation (skipping real OAuth per user direction; founder pitch demo)
 - Email capture + Mongo persistence, success state with personalized confirmation
 - Toast notifications, expandable cold-conversation rows showing AI reasoning + Shram suggested action
 - Animated terminal scanning stage with progressive stages, streaming logs, live counters
+
+### v2 — design rebuild + 2 new features (2026-04-26)
+- **Major design pivot**: brutalist Swiss → calm warm cream/pink editorial serif matching shram.ai brand DNA exactly. Cormorant Garamond + Source Serif 4. Pill buttons. Soft tag chips.
+- **NEW: Shareable result page** at `/r/:sessionId`. When a founder forwards the link, recipient sees a "A founder shared their cold-conversation audit with you — they have N conversations going cold right now" banner with "Run yours" CTA. Read-only mode hides Draft/Rescan. Document.title updates for inline preview ("8 cold conversations — Shram"). OG/Twitter meta tags added.
+- **NEW: Per-row "Draft a reply" button**. Each cold thread, when expanded, has a "Draft a reply" pill that calls `POST /api/draft/{session_id}/{thread_id}` → Gemini generates a contextual, in-voice reply using the thread's actual context (subject, last preview, promise made, days since). Output rendered inline with "Copy draft" pill.
+- New `BrowserRouter` setup with routes `/` (MainFlow) and `/r/:sessionId` (SharePageWrapper). Owner stays at `/` after their own scan (full features); only people clicking a shared URL land at `/r/:id` (readOnly).
+- Shram crystal SVG mark, About link, and footer matching shram.ai layout.
 
 ## User Personas
 1. **Founder/operator** receiving the live pitch — sees their pain quantified in 5 seconds
