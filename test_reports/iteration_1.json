@@ -1,0 +1,44 @@
+{
+  "summary": "Full e2e testing of Shram Cold Conversation Audit. All 10 backend tests pass (pytest), full frontend flow works end-to-end (hero → scanning → results → access request → reset). Real Gemini 3 Flash integration verified via backend logs ('Gemini raw response' present 5+ times with valid JSON arrays). Scan returns 14 threads, ~8 cold (score>=50), sorted desc, all required fields present and valid. No console errors during entire UI flow.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/scan", "issue": "Historical 'Budget exceeded' error in backend.err.log (one-time, before tests). Subsequent calls succeed — likely an early-key budget cap that has since been lifted. Worth monitoring."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Results — expanded ColdRow 'SHRAM WOULD' card", "issues": ["In screenshot the suggested-action text and SCORE/THREAD values inside the dark card appear visually faded/ghosted on first reveal. May be animation related (hammer-in) but worth verifying contrast/opacity on the inner dark card content."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "Optional: investigate faded text inside dark 'SHRAM WOULD' card on row expansion (visual polish only).",
+    "Monitor EMERGENT_LLM_KEY budget — one historical BadRequestError 'Budget has been exceeded' was logged but is no longer happening."
+  ],
+  "critical_code_review_comments": [
+    "server.py is single-file (~360 lines) — acceptable for prototype scope; no need to split.",
+    "_gemini_score correctly uses emergentintegrations LlmChat with gemini-3-flash-preview; few-shot prompt is well-structured with stripped labels for examples vs scoring.",
+    "Fallback path (line 240-252) silently uses dataset's pre-labeled scores if Gemini fails — fine for demo but the response still reports model='gemini-3-flash-preview' in scan_meta even when fallback ran. Consider adding scan_meta.fallback=true on exception path so observers can detect it.",
+    "MongoDB _id properly excluded in GET /api/scan/{session_id} and GET /api/access/requests via projection {'_id': 0}. Good.",
+    "EmailStr validation works (422 on invalid email). Good.",
+    "Frontend correctly uses REACT_APP_BACKEND_URL; no hardcoded URLs.",
+    "All interactive elements have data-testid attributes. Good testability.",
+    "No loading/error UI for the access submission button beyond toast — acceptable for prototype."
+  ],
+  "updated_files": [
+    "/app/backend/tests/backend_test.py (created)"
+  ],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "N/A — no auth in this prototype (Gmail OAuth intentionally mocked per problem statement).",
+  "seed_data_creation": "Created TEST_-prefixed access requests via API and UI flow (TEST_founder@example.com, TEST_listcheck@example.com, TEST_uifounder@example.com).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All 10 pytest tests at /app/backend/tests/backend_test.py pass. Real Gemini 3 Flash path verified via 'Gemini raw response' marker in /var/log/supervisor/backend.err.log. Frontend stage machine hero→scanning→results→reset works flawlessly with Gemini's live output. cold_count varies per scan (random sampling) but always 1-14 with score>=50. EMERGENT_LLM_KEY budget had one transient overage early on; monitor.",
+  "rca of the issue": "N/A — no defects found. App is shippable for founder pitch."
+}
