@@ -1,50 +1,38 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
+import ShramLogo from "@/components/ShramLogo";
 
 const STAGES = [
-  { label: "AUTHENTICATING", duration: 700 },
-  { label: "FETCHING THREADS / 90D", duration: 900 },
-  { label: "PARSING METADATA", duration: 800 },
-  { label: "EMBEDDING CONTEXT", duration: 900 },
-  { label: "RETRIEVING SIMILAR PATTERNS", duration: 900 },
-  { label: "RANKING COLDNESS", duration: 700 },
-  { label: "DRAFTING REASONS", duration: 600 },
-  { label: "FINALISING", duration: 500 },
-];
-
-const SAMPLE_LINES = [
-  '> auth.gmail.readonly OK',
-  '> fetched 412 threads in window=90d',
-  '> filter: in:sent OR in:inbox',
-  '> tokenizing subjects + last_message_preview',
-  '> vectorizing 412 threads (768d)',
-  '> retrieving 6 nearest labelled exemplars',
-  '> few_shot=6 / model=gemini-3-flash-preview',
-  '> scoring thread_id=THREAD_1827 ... score=83 [HIGH]',
-  '> scoring thread_id=THREAD_0442 ... score=22 [LOW]',
-  '> scoring thread_id=THREAD_2201 ... score=71 [HIGH]',
-  '> detecting unfulfilled promises (days_since_promise > 14)',
-  '> last_sender=them ∧ no_reply → flag',
-  '> last_sender=you ∧ awaiting_them → drop',
-  '> applying risk tier mapping [0..39 LOW] [40..69 MED] [70..100 HIGH]',
-  '> drafting cold_reason via in-context exemplars',
-  '> shram_would_flag=true count=...',
-  '> sorting by cold_score desc',
+  {
+    label: "Reading",
+    sub: "Opening a read-only window into your last 90 days. No content stored.",
+    duration: 1100,
+  },
+  {
+    label: "Remembering",
+    sub: "Building a private memory of who is waiting on whom, and for how long.",
+    duration: 1200,
+  },
+  {
+    label: "Reasoning",
+    sub: "Calibrating against patterns of conversations that go quietly cold.",
+    duration: 1300,
+  },
+  {
+    label: "Revealing",
+    sub: "Surfacing the threads that need you, ordered by who is waiting longest.",
+    duration: 1100,
+  },
 ];
 
 export default function Scanning() {
   const [stageIdx, setStageIdx] = useState(0);
   const [percent, setPercent] = useState(0);
-  const [lines, setLines] = useState([]);
-  const [counter, setCounter] = useState({ scanned: 0, cold: 0 });
-  const consoleRef = useRef(null);
 
-  // Cycle through stages
   useEffect(() => {
     let mounted = true;
     let i = 0;
     let elapsed = 0;
     const total = STAGES.reduce((a, s) => a + s.duration, 0);
-
     const next = () => {
       if (!mounted || i >= STAGES.length) return;
       const s = STAGES[i];
@@ -55,8 +43,7 @@ export default function Scanning() {
         if (!mounted) return;
         const t = Date.now() - startTime;
         const cur = Math.min(t, s.duration);
-        const p = ((startElapsed + cur) / total) * 100;
-        setPercent(p);
+        setPercent(((startElapsed + cur) / total) * 100);
         if (cur < s.duration) requestAnimationFrame(tick);
         else {
           elapsed += s.duration;
@@ -72,148 +59,85 @@ export default function Scanning() {
     };
   }, []);
 
-  // Stream terminal lines
-  useEffect(() => {
-    let mounted = true;
-    let idx = 0;
-    const id = setInterval(() => {
-      if (!mounted) return;
-      const line = SAMPLE_LINES[idx % SAMPLE_LINES.length];
-      idx += 1;
-      setLines((prev) => {
-        const nxt = [...prev, line];
-        return nxt.length > 14 ? nxt.slice(nxt.length - 14) : nxt;
-      });
-    }, 280);
-    return () => {
-      mounted = false;
-      clearInterval(id);
-    };
-  }, []);
-
-  // Animate counters
-  useEffect(() => {
-    let mounted = true;
-    const id = setInterval(() => {
-      if (!mounted) return;
-      setCounter((c) => ({
-        scanned: Math.min(412, c.scanned + Math.floor(Math.random() * 23 + 8)),
-        cold: Math.min(99, c.cold + (Math.random() > 0.65 ? 1 : 0)),
-      }));
-    }, 110);
-    return () => {
-      mounted = false;
-      clearInterval(id);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (consoleRef.current) {
-      consoleRef.current.scrollTop = consoleRef.current.scrollHeight;
-    }
-  }, [lines]);
-
   return (
     <section
-      className="min-h-[calc(100vh-3.5rem)] bg-[#0A0A0A] text-[#F4F4F0] px-4 sm:px-8 lg:px-16 py-10 lg:py-14 relative grain"
+      className="min-h-[calc(100vh-5rem)] px-6 sm:px-10 lg:px-20 py-16 lg:py-24"
       data-testid="scanning-section"
     >
-      {/* Top kicker */}
-      <div className="flex items-center justify-between">
-        <div
-          className="font-mono text-xs uppercase tracking-[0.22em] text-[#888]"
-          data-testid="scanning-kicker"
-        >
-          <span className="inline-block w-2 h-2 bg-[#34C759] mr-3 align-middle animate-pulse" />
-          BRAIN ACTIVE / RAG IN-CONTEXT
+      <div className="max-w-5xl mx-auto">
+        <div className="flex items-center gap-3 fade-up" data-testid="scanning-kicker">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#C84630] pulse-dot" />
+          <span className="eyebrow">Reading your inbox &mdash; read-only</span>
         </div>
-        <div className="font-mono text-xs uppercase tracking-[0.22em] text-[#888]">
-          STAGE 02 / SCANNING
-        </div>
-      </div>
 
-      {/* Big stage label + progress */}
-      <div className="mt-12 lg:mt-20">
-        <div
-          className="font-mono text-xs uppercase tracking-[0.3em] text-[#888]"
-          data-testid="scanning-stage-label"
-        >
-          {String(stageIdx + 1).padStart(2, "0")} /{" "}
-          {String(STAGES.length).padStart(2, "0")} &middot;{" "}
-          {STAGES[stageIdx]?.label}
-        </div>
+        {/* Stage label as editorial headline */}
         <h2
-          className="font-display uppercase leading-[0.9] tracking-[-0.04em] text-5xl sm:text-7xl lg:text-[8vw] mt-4 terminal-cursor"
+          className="font-display mt-8 leading-[0.98] tracking-[-0.015em] text-5xl sm:text-7xl lg:text-[88px]"
           data-testid="scanning-headline"
         >
           {STAGES[stageIdx]?.label}
+          <span className="text-[#C84630] ml-1">.</span>
         </h2>
+        <p
+          className="mt-6 text-lg sm:text-xl text-[#3a302b] italic max-w-2xl leading-relaxed"
+          data-testid="scanning-stage-sub"
+        >
+          {STAGES[stageIdx]?.sub}
+        </p>
 
-        <div className="mt-10 flex items-center gap-6">
-          <div className="flex-1 h-2 border-2 border-[#F4F4F0] relative">
+        {/* Hairline progress with numeric */}
+        <div className="mt-16 lg:mt-24 flex items-center gap-6">
+          <div className="flex-1 h-px bg-[#E5D2C7] relative overflow-hidden">
             <div
-              className="absolute inset-y-0 left-0 bg-[#F4F4F0] transition-[width] duration-150 ease-linear"
+              className="absolute inset-y-0 left-0 bg-[#1A1614] transition-[width] duration-150 ease-linear"
               style={{ width: `${percent}%` }}
               data-testid="scanning-progress-bar"
             />
           </div>
           <div
-            className="font-mono text-xl tabular-nums w-20 text-right"
+            className="font-display text-2xl tabular-nums text-[#6B5F58] w-16 text-right"
             data-testid="scanning-progress-pct"
           >
-            {Math.round(percent)}%
+            {String(Math.round(percent)).padStart(2, "0")}
           </div>
         </div>
-      </div>
 
-      {/* Two-column terminal + counters */}
-      <div className="mt-14 grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div
-          ref={consoleRef}
-          className="lg:col-span-8 border-2 border-[#F4F4F0] bg-[#0A0A0A] p-5 h-72 overflow-hidden font-mono text-xs sm:text-sm text-[#34C759] leading-relaxed"
-          data-testid="scanning-terminal"
-        >
-          {lines.map((l, i) => (
-            <div key={i} className="opacity-90">
-              {l}
+        {/* Stage list — calm, like shram.ai's numbered process */}
+        <div className="mt-20 lg:mt-28 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+          {STAGES.map((s, i) => (
+            <div
+              key={s.label}
+              className={`flex gap-6 transition-opacity duration-500 ${
+                i <= stageIdx ? "opacity-100" : "opacity-30"
+              }`}
+              data-testid={`scanning-stage-${i}`}
+            >
+              <div className="editorial-numeral text-[#D9C4B7]">
+                {String(i + 1).padStart(2, "")}
+              </div>
+              <div className="pt-2">
+                <h3 className="font-display text-2xl lg:text-3xl flex items-center gap-2">
+                  {s.label}
+                  {i === stageIdx && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#C84630] pulse-dot" />
+                  )}
+                  {i < stageIdx && (
+                    <span className="text-[#6E8B5A] text-sm not-italic">&#10003;</span>
+                  )}
+                </h3>
+                <p className="mt-2 text-sm text-[#6B5F58] max-w-xs leading-relaxed">
+                  {s.sub}
+                </p>
+              </div>
             </div>
           ))}
-          <div className="opacity-60">
-            <span className="text-[#F4F4F0]">{">"}</span>{" "}
-            <span className="terminal-cursor">working</span>
-          </div>
         </div>
 
-        <div className="lg:col-span-4 grid grid-cols-2 lg:grid-cols-1 gap-6">
-          <CounterCell
-            label="THREADS SCANNED"
-            value={counter.scanned}
-            testId="counter-scanned"
-          />
-          <CounterCell
-            label="POTENTIAL COLD"
-            value={counter.cold}
-            accent="#FF3333"
-            testId="counter-cold"
-          />
+        {/* Footer crystal */}
+        <div className="mt-20 flex justify-center">
+          <ShramLogo size={36} className="text-[#1A1614] float-gentle opacity-70" />
         </div>
       </div>
     </section>
-  );
-}
-
-function CounterCell({ label, value, accent, testId }) {
-  return (
-    <div className="border-2 border-[#F4F4F0] p-5" data-testid={testId}>
-      <div className="font-mono text-xs uppercase tracking-[0.22em] text-[#888]">
-        {label}
-      </div>
-      <div
-        className="font-display text-5xl sm:text-6xl mt-2 tabular-nums"
-        style={{ color: accent || "#F4F4F0" }}
-      >
-        {String(value).padStart(2, "0")}
-      </div>
-    </div>
   );
 }

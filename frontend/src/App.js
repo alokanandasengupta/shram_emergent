@@ -1,37 +1,37 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "@/App.css";
+import { BrowserRouter, Routes, Route, useNavigate, useParams } from "react-router-dom";
 import Hero from "@/components/Hero";
 import Scanning from "@/components/Scanning";
 import Results from "@/components/Results";
 import RequestAccess from "@/components/RequestAccess";
 import TopBar from "@/components/TopBar";
+import SharePage from "@/components/SharePage";
 import { Toaster } from "@/components/ui/sonner";
 import axios from "axios";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-function App() {
+function MainFlow() {
   // stages: 'hero' | 'scanning' | 'results'
   const [stage, setStage] = useState("hero");
   const [scanResult, setScanResult] = useState(null);
   const [scanError, setScanError] = useState(null);
+  const navigate = useNavigate();
 
   const startScan = async () => {
     setStage("scanning");
     setScanError(null);
     try {
-      // kick off the scan; the scanning animation runs in parallel
       const reqPromise = axios.post(`${API}/scan`);
-      // ensure the dramatic scan animation runs at least 5s for UX impact
-      const minDelay = new Promise((r) => setTimeout(r, 5200));
+      const minDelay = new Promise((r) => setTimeout(r, 5400));
       const [resp] = await Promise.all([reqPromise, minDelay]);
       setScanResult(resp.data);
       setStage("results");
     } catch (e) {
       console.error("scan failed", e);
       setScanError(e?.message || "Scan failed");
-      // still move to results in degraded mode
       setStage("hero");
     }
   };
@@ -40,19 +40,18 @@ function App() {
     setStage("hero");
     setScanResult(null);
     setScanError(null);
+    navigate("/", { replace: true });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
-    <div className="App" data-testid="app-root">
+    <>
       <TopBar onReset={reset} stage={stage} />
-      {stage === "hero" && (
-        <Hero onConnect={startScan} error={scanError} />
-      )}
+      {stage === "hero" && <Hero onConnect={startScan} error={scanError} />}
       {stage === "scanning" && <Scanning />}
       {stage === "results" && scanResult && (
         <>
-          <Results data={scanResult} onReset={reset} />
+          <Results data={scanResult} onReset={reset} apiBase={API} />
           <RequestAccess
             sessionId={scanResult.session_id}
             coldCount={scanResult.cold_count}
@@ -60,6 +59,68 @@ function App() {
           />
         </>
       )}
+    </>
+  );
+}
+
+function SharePageWrapper() {
+  const { sessionId } = useParams();
+  const navigate = useNavigate();
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    axios
+      .get(`${API}/scan/${sessionId}`)
+      .then((r) => {
+        if (alive) {
+          setData(r.data);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (alive) {
+          setNotFound(true);
+          setLoading(false);
+        }
+      });
+    return () => {
+      alive = false;
+    };
+  }, [sessionId]);
+
+  return (
+    <>
+      <TopBar onReset={() => navigate("/")} stage="results" />
+      <SharePage
+        data={data}
+        loading={loading}
+        notFound={notFound}
+        apiBase={API}
+        onStartOwn={() => navigate("/")}
+      />
+      {data && (
+        <RequestAccess
+          sessionId={data.session_id}
+          coldCount={data.cold_count}
+          apiBase={API}
+        />
+      )}
+    </>
+  );
+}
+
+function App() {
+  return (
+    <div className="App" data-testid="app-root">
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<MainFlow />} />
+          <Route path="/r/:sessionId" element={<SharePageWrapper />} />
+        </Routes>
+      </BrowserRouter>
       <Toaster position="bottom-right" />
     </div>
   );

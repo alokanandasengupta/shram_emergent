@@ -1,4 +1,4 @@
-/* App-specific tweaks (kept minimal — most styling lives in index.css) */
+/* Calm, editorial product page — matched to shram.ai brand */
 .App {
     min-height: 100vh;
     background: var(--bg-primary);

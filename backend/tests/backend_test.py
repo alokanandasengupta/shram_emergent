@@ -126,6 +126,39 @@ def test_access_request_invalid_email(session):
     assert r.status_code == 422
 
 
+# ---------- Draft Reply (NEW) ----------
+def test_draft_reply_valid(session, scan_result):
+    """Real Gemini-generated draft for a real cold thread in the saved scan."""
+    sid = scan_result["session_id"]
+    cold = scan_result["cold_threads"]
+    if not cold:
+        pytest.skip("No cold threads in scan result")
+    thread_id = cold[0]["thread_id"]
+    r = session.post(f"{API}/draft/{sid}/{thread_id}", timeout=60)
+    assert r.status_code == 200, f"draft failed: {r.status_code} {r.text[:300]}"
+    d = r.json()
+    assert d["thread_id"] == thread_id
+    assert isinstance(d["draft"], str)
+    assert len(d["draft"]) > 20
+    # rough word count under ~200
+    assert len(d["draft"].split()) < 220
+    # should not contain a code fence
+    assert "```" not in d["draft"]
+
+
+def test_draft_reply_invalid_session(session):
+    r = session.post(f"{API}/draft/nonexistent-session-xyz/THREAD_001")
+    assert r.status_code == 404
+    assert "Scan not found" in r.text
+
+
+def test_draft_reply_invalid_thread(session, scan_result):
+    sid = scan_result["session_id"]
+    r = session.post(f"{API}/draft/{sid}/THREAD_does_not_exist_999")
+    assert r.status_code == 404
+    assert "Thread not found" in r.text
+
+
 def test_access_requests_list(session):
     # ensure at least one exists
     session.post(f"{API}/access/request", json={"email": "TEST_listcheck@example.com"})

@@ -326,6 +326,67 @@ async def list_access_requests(limit: int = 50):
     return {"items": items, "count": len(items)}
 
 
+class DraftReply(BaseModel):
+    draft: str
+    thread_id: str
+
+
+@api_router.post("/draft/{session_id}/{thread_id}", response_model=DraftReply)
+async def draft_reply(session_id: str, thread_id: str):
+    """Generate a contextual draft reply for one cold thread using Gemini."""
+    scan = await db.scans.find_one({"session_id": session_id}, {"_id": 0})
+    if not scan:
+        raise HTTPException(status_code=404, detail="Scan not found")
+
+    thread = next(
+        (t for t in scan.get("cold_threads", []) if t.get("thread_id") == thread_id),
+        None,
+    )
+    if not thread:
+        raise HTTPException(status_code=404, detail="Thread not found in scan")
+
+    system_msg = (
+        "You are Shram drafting a short, warm, in-context follow-up reply for a "
+        "founder. Voice: human, calm, no apology spam, no salesy language. "
+        "Keep it under 90 words. Reference the specific context of the thread. "
+        "Output ONLY the email body text — no subject line, no signature placeholders."
+    )
+
+    context = (
+        f"Contact: {thread['contact_name']} ({thread['contact_company']}, "
+        f"{thread['relationship_type']})\n"
+        f"Subject: {thread['subject']}\n"
+        f"Days since last message: {thread['days_since_last_message']}\n"
+        f"Last sender: {thread['last_sender']}\n"
+        f"Last message preview: \"{thread['last_message_preview']}\"\n"
+        f"Why it went cold: {thread['cold_reason']}\n"
+        f"Promise made (if any): {thread.get('promise_made') or 'none'}\n\n"
+        "Draft a short, specific reply that closes the loop. Be warm but direct."
+    )
+
+    try:
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"draft-{session_id}-{thread_id}",
+            system_message=system_msg,
+        ).with_model("gemini", "gemini-3-flash-preview")
+        draft = (await chat.send_message(UserMessage(text=context))).strip()
+        # strip code fences if any
+        if draft.startswith("```"):
+            draft = re.sub(r"^```\w*\n?", "", draft)
+            draft = re.sub(r"\n?```$", "", draft).strip()
+    except Exception as e:
+        logger.error(f"Draft generation failed: {e}", exc_info=True)
+        draft = (
+            f"Hi {thread['contact_name'].split()[0]},\n\n"
+            "Apologies for the silence. Picking this back up — "
+            f"{thread.get('promise_made') or 'closing the loop on this'}. "
+            "Sending more this week.\n\nThanks for your patience."
+        )
+
+    return DraftReply(draft=draft, thread_id=thread_id)
+
+
 @api_router.get("/stats")
 async def stats():
     """Aggregate stats useful for the founder pitch (proof of activity)."""

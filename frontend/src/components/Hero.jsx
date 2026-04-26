@@ -1,103 +1,128 @@
-import { ArrowRight, ShieldCheck, Clock, Lock } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import ShramLogo from "@/components/ShramLogo";
 
 export default function Hero({ onConnect, error }) {
   return (
     <section
-      className="relative min-h-[calc(100vh-3.5rem)] flex flex-col justify-between px-4 sm:px-8 lg:px-16 py-12 lg:py-16 overflow-hidden"
+      className="px-6 sm:px-10 lg:px-20 pt-16 lg:pt-24 pb-20"
       data-testid="hero-section"
     >
-      {/* Top kicker line */}
-      <div className="flex items-center justify-between fade-up">
-        <div className="mono-label" data-testid="hero-kicker">
-          <span className="inline-block w-2 h-2 bg-[#FF3333] mr-3 align-middle" />
-          PROTOTYPE / PLG SURFACE / V0.1
+      <div className="max-w-5xl mx-auto">
+        {/* Eyebrow */}
+        <div className="fade-up flex items-center gap-3" data-testid="hero-kicker">
+          <span className="eyebrow">An experiment by Shram &mdash;</span>
+          <span className="eyebrow text-[#A89B92]">for founders only</span>
         </div>
-        <div className="hidden md:block mono-label">
-          A Shram experiment for founders
-        </div>
-      </div>
 
-      {/* Headline */}
-      <div className="my-12 lg:my-0">
+        {/* Editorial headline */}
         <h1
-          className="font-display uppercase leading-[0.86] tracking-[-0.05em] text-[14vw] sm:text-[12vw] lg:text-[10vw] fade-up"
+          className="font-display mt-8 leading-[0.98] tracking-[-0.015em] text-[44px] sm:text-6xl lg:text-[88px] fade-up"
           style={{ animationDelay: "120ms" }}
           data-testid="hero-headline"
         >
-          How many <br />
-          conversations <br />
-          went <span className="italic font-display" style={{ fontStyle: "italic" }}>cold</span>
-          <span className="text-[#FF3333]">?</span>
+          How many of your <br />
+          conversations <span className="italic font-display">went cold</span>{" "}
+          <br />
+          in the last 90 days?
         </h1>
 
-        <div className="mt-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
-          <p
-            className="lg:col-span-6 text-base sm:text-lg leading-relaxed max-w-xl fade-up"
+        {/* Body */}
+        <div className="mt-10 lg:mt-14 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-end">
+          <div
+            className="lg:col-span-7 fade-up"
             style={{ animationDelay: "260ms" }}
-            data-testid="hero-subhead"
           >
-            Connect your inbox for sixty seconds. Shram&rsquo;s ML brain reads
-            the last 90 days, traces the threads where momentum died, and tells
-            you the exact number you&rsquo;ve been afraid to count.
-            <span className="block mt-3 text-[#555]">
+            <p
+              className="text-lg sm:text-xl text-[#3a302b] leading-[1.55] max-w-xl"
+              data-testid="hero-subhead"
+            >
+              Connect your inbox for sixty seconds. Shram&rsquo;s memory
+              reads the last 90 days, traces every thread where momentum
+              quietly died, and tells you the exact number you&rsquo;ve been
+              afraid to count.
+            </p>
+            <p className="mt-5 text-base text-[#6B5F58] italic max-w-xl">
               No signup. No dashboard to learn. The result is the product.
-            </span>
-          </p>
+            </p>
+          </div>
 
           <div
-            className="lg:col-span-6 flex flex-col justify-end fade-up"
+            className="lg:col-span-5 fade-up flex flex-col items-start lg:items-end gap-5"
             style={{ animationDelay: "400ms" }}
           >
             <button
               onClick={onConnect}
-              className="brutal-btn w-full lg:w-auto self-end inline-flex items-center justify-between gap-6 px-8 py-6 group"
+              className="pill-btn group"
               data-testid="connect-gmail-button"
             >
-              <span className="flex items-center gap-3">
-                <span className="inline-block w-2 h-2 bg-[#FF3333] rounded-full animate-pulse" />
-                Connect Gmail &mdash; Read-only
-              </span>
-              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C84630] pulse-dot" />
+              <span>Connect Gmail &mdash; read-only</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </button>
-            <div className="mt-4 grid grid-cols-3 gap-3 text-xs font-mono">
-              <Trust icon={<ShieldCheck className="w-3.5 h-3.5" />} label="READ-ONLY" />
-              <Trust icon={<Clock className="w-3.5 h-3.5" />} label="60 SECONDS" />
-              <Trust icon={<Lock className="w-3.5 h-3.5" />} label="NO SIGNUP" />
+            <div className="flex flex-wrap gap-2 text-sm">
+              <span className="tag-soft" data-testid="badge-readonly">
+                Read-only
+              </span>
+              <span className="tag-soft" data-testid="badge-60s">
+                60 seconds
+              </span>
+              <span className="tag-soft" data-testid="badge-no-signup">
+                No signup
+              </span>
             </div>
             {error && (
-              <div className="mt-4 mono-label text-[#FF3333]" data-testid="hero-error">
-                ERR: {error}
+              <div
+                className="text-sm text-[#C84630] italic"
+                data-testid="hero-error"
+              >
+                {error}
               </div>
             )}
           </div>
         </div>
-      </div>
 
-      {/* Footer band */}
-      <div className="border-t-2 border-[#0A0A0A] pt-6 grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-12">
-        <Stat label="DAYS SCANNED" value="90" />
-        <Stat label="THREADS PROCESSED" value="100s" />
-        <Stat label="MODEL" value="Gemini 3" />
-        <Stat label="OUTPUT" value="ONE NUMBER" />
+        {/* Soft "what happens next" preview — like shram.ai's Finds/Drafts/Finishes */}
+        <div className="mt-24 lg:mt-32 grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-16">
+          <Step
+            n="1"
+            title="Reads"
+            body="Shram quietly scans subjects, last replies, promises made and forgotten — across the last 90 days."
+          />
+          <Step
+            n="2"
+            title="Reasons"
+            body="Few-shot in-context examples teach the model what 'cold' looks like for a founder's inbox."
+          />
+          <Step
+            n="3"
+            title="Reveals"
+            body="One number. The exact people waiting on you — and the ones you forgot were waiting."
+          />
+        </div>
+
+        {/* Closing line */}
+        <div className="mt-24 lg:mt-32 border-t border-[#E5D2C7] pt-10 flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:justify-between">
+          <div className="flex items-center gap-3">
+            <ShramLogo size={20} className="text-[#1A1614] float-gentle" />
+            <span className="font-display text-2xl">
+              Shram <span className="italic text-[#6B5F58]">finds your follow-ups and does them for you.</span>
+            </span>
+          </div>
+          <span className="eyebrow">Built for founders &middot; v0.1 prototype</span>
+        </div>
       </div>
     </section>
   );
 }
 
-function Trust({ icon, label }) {
+function Step({ n, title, body }) {
   return (
-    <div className="flex items-center gap-2 text-[#555]">
-      {icon}
-      <span className="tracking-[0.18em]">{label}</span>
-    </div>
-  );
-}
-
-function Stat({ label, value }) {
-  return (
-    <div>
-      <div className="mono-label">{label}</div>
-      <div className="font-display text-2xl sm:text-3xl mt-1">{value}</div>
+    <div className="flex gap-6 lg:gap-8">
+      <div className="editorial-numeral">{n}</div>
+      <div className="pt-2 lg:pt-4 max-w-sm">
+        <h3 className="font-display text-3xl lg:text-4xl">{title}</h3>
+        <p className="mt-3 text-base text-[#3a302b] leading-relaxed">{body}</p>
+      </div>
     </div>
   );
 }
