@@ -1,0 +1,100 @@
+{
+  "theme": "light",
+  "archetype": "4_swiss_high_contrast",
+  "description": "A brutalist, typography-driven, high-contrast PLG (Product-Led Growth) tool that acts as a revelatory 'data made visible' moment for founders. It intentionally avoids generic SaaS templates to create an editorial, 'truth-bomb' aesthetic.",
+  "colors": {
+    "background": {
+      "primary": "#F4F4F0",
+      "secondary": "#EAEAE6",
+      "tertiary": "#FFFFFF"
+    },
+    "text": {
+      "primary": "#0A0A0A",
+      "secondary": "#555555",
+      "tertiary": "#888888"
+    },
+    "border": {
+      "default": "#D1D1C7",
+      "strong": "#0A0A0A"
+    },
+    "accents": {
+      "brand": "#0A0A0A",
+      "high_risk": "#FF3333",
+      "medium_risk": "#FF9500",
+      "low_risk": "#007AFF",
+      "success": "#34C759"
+    }
+  },
+  "typography": {
+    "font_family": {
+      "heading": "'Clash Display', 'Cabinet Grotesk', sans-serif",
+      "body": "'IBM Plex Mono', 'Space Mono', monospace"
+    },
+    "rules": {
+      "h1": "text-5xl sm:text-7xl lg:text-[10vw] font-black tracking-tighter uppercase leading-none",
+      "h2": "text-3xl sm:text-5xl font-bold tracking-tight",
+      "h3": "text-xl sm:text-2xl font-semibold",
+      "body": "text-base font-medium leading-relaxed tracking-tight",
+      "mono_labels": "text-xs font-bold uppercase tracking-[0.2em]"
+    }
+  },
+  "layout_and_spacing": {
+    "philosophy": "Generous Spacing Philosophy. Use large padding (p-8, p-12, p-24) to frame content like an art gallery. Brutalist grid structures with 1px or 2px solid dark borders. No rounded corners, or max 2px.",
+    "border_radius": "rounded-none",
+    "shadows": "shadow-none",
+    "surfaces": {
+      "card": "bg-white border-2 border-[#0A0A0A] p-6 lg:p-8",
+      "hero_section": "min-h-screen flex flex-col justify-center px-4 sm:px-8 lg:px-16"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-[#0A0A0A] text-white font-mono uppercase tracking-[0.1em] text-sm px-8 py-4 border-2 border-[#0A0A0A] hover:bg-white hover:text-[#0A0A0A] transition-colors duration-200",
+      "danger_accent": "bg-[#FF3333] text-white font-mono uppercase tracking-[0.1em] text-sm px-8 py-4 border-2 border-[#FF3333] hover:bg-transparent hover:text-[#FF3333] transition-colors duration-200"
+    },
+    "risk_badges": {
+      "high": "bg-[#FF3333]/10 text-[#FF3333] border border-[#FF3333]/20 px-2 py-1 text-xs font-mono uppercase",
+      "medium": "bg-[#FF9500]/10 text-[#FF9500] border border-[#FF9500]/20 px-2 py-1 text-xs font-mono uppercase",
+      "low": "bg-[#007AFF]/10 text-[#007AFF] border border-[#007AFF]/20 px-2 py-1 text-xs font-mono uppercase"
+    },
+    "table_list": "border-y border-[#0A0A0A] divide-y divide-[#0A0A0A]/20. Cells should have generous vertical padding (py-6)."
+  },
+  "motion": {
+    "scanning_animation": "Use an intense, terminal-like rapid text scrambling or marquee effect. A fast-updating counter and raw JSON-like text flashing on screen (using `framer-motion` or plain React state loops) to simulate the RAG brain reading emails in real-time.",
+    "reveal": "The number '7' (or X) must fade/scale in massively (e.g., text-[25vw]) with a harsh, heavy impact. No bouncy spring animations. Stiff, authoritative ease-out."
+  },
+  "media_and_assets": {
+    "icons": "lucide-react (use harsh, geometric icons like X, Terminal, ArrowRight)",
+    "image_urls": [
+      {
+        "url": "https://images.unsplash.com/photo-1723471996865-fe3ea1542ff4?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNDR8MHwxfHNlYXJjaHwzfHxtaW5pbWFsaXN0JTIwYXJjaGl0ZWN0dXJlJTIwdGVuc2lvbnxlbnwwfHx8fDE3NzcyMzA3ODN8MA&ixlib=rb-4.1.0&q=85",
+        "category": "background_texture",
+        "description": "Minimalist architectural tension, black and white walkway. Use as a very subtle background overlay (opacity-10 mixed mode) or in the scanning phase to represent 'paths'."
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1622460241074-31903edeb894?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTJ8MHwxfHNlYXJjaHwyfHxmb3VuZGVyJTIwcG9ydHJhaXQlMjBibGFjayUyMGFuZCUyMHdoaXRlfGVufDB8fHx8MTc3NzIzMDgwMHww&ixlib=rb-4.1.0&q=85",
+        "category": "founder_avatar",
+        "description": "Avatar for the contact list representing a 'cold conversation'."
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1619762488054-5e580d005338?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTJ8MHwxfHNlYXJjaHwxfHxmb3VuZGVyJTIwcG9ydHJhaXQlMjBibGFjayUyMGFuZCUyMHdoaXRlfGVufDB8fHx8MTc3NzIzMDgwMHww&ixlib=rb-4.1.0&q=85",
+        "category": "founder_avatar",
+        "description": "Avatar for the contact list representing another 'cold conversation'."
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1769985090528-5a4da245e9a8?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxOTF8MHwxfHNlYXJjaHwyfHxjb21wYW55JTIwbG9nbyUyMG1pbmltYWxpc3R8ZW58MHx8fHwxNzc3MjMwODAwfDA&ixlib=rb-4.1.0&q=85",
+        "category": "company_logo",
+        "description": "Abstract/minimalist company logo image to use in the 'cold conversations' table next to company names."
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "You are building a single-page PLG tool in React/Tailwind. The app runs sequentially through 4 segments.",
+    "SEGMENT 1 (Hero): A massive, stark headline about missing conversations. A giant 'Connect Gmail' button. Add trust signals (Read-only, 60 seconds, no signup) underneath in tiny mono font.",
+    "SEGMENT 2 (Scanning): When they click 'Connect', switch to a 'Terminal/RAG' simulation view. Black background, green/white monospace text flashing lines of 'parsing inbox', 'vectorizing context', 'evaluating sentiment' for ~5 seconds (mock the 60 seconds to 5 seconds for prototype UX).",
+    "SEGMENT 3 (The Reveal): The screen clears. A massive, screen-filling number '7' appears in pure black or stark red (#FF3333). Below it: 'conversations went cold in the last 90 days. Here is who.' Below that, render a sleek, brutalist list/table of the 7 conversations. Columns: Contact (Avatar + Name), Company (Logo + Name), Last Message (Days ago), Reason (AI generated snippet), Risk Tier Badge (High/Med/Low).",
+    "SEGMENT 4 (CTA): Below the list, a heavy, dark block section: 'Shram would have caught all 7. Request Access.' Input field for email, and a 'Request Access' submit button.",
+    "CRITICAL STYLING: Do NOT use Shadcn's default rounded cards. Everything must be sharp edges (rounded-none), solid borders (border-2 border-black), and raw. DO NOT use Inter. Use Cabinet Grotesk/Clash Display for headings and IBM Plex Mono for all data/tables/buttons.",
+    "Add 'data-testid' to all buttons, the email input, and each row in the conversation table."
+  ]
+}
