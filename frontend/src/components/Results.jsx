@@ -223,17 +223,17 @@ function ColdRow({ thread, index }) {
           </div>
 
           <div className="col-span-12 sm:col-span-4">
-            <div className="brutal-card p-5 bg-[#0A0A0A] text-[#F4F4F0] border-[#0A0A0A]">
-              <div className="mono-label text-[#888]">SHRAM WOULD</div>
-              <div className="mt-2 text-base">
+            <div className="p-5 bg-[#0A0A0A] border-2 border-[#0A0A0A]">
+              <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#888]">SHRAM WOULD</div>
+              <div className="mt-2 text-base text-[#F4F4F0]">
                 {thread.shram_would_flag
                   ? thread.shram_suggested_action ||
                     "Flag and surface this thread to you for action."
                   : "Surface this thread as a check-in for next week."}
               </div>
-              <div className="mt-4 grid grid-cols-2 gap-3 text-xs font-mono">
-                <Stat tiny label="SCORE" value={thread.cold_score_0_100} />
-                <Stat tiny label="THREAD" value={thread.thread_id.replace("THREAD_", "#")} />
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <DarkStat label="SCORE" value={thread.cold_score_0_100} />
+                <DarkStat label="THREAD" value={thread.thread_id.replace("THREAD_", "#")} />
               </div>
             </div>
           </div>
@@ -250,6 +250,19 @@ function Stat({ label, value, tiny }) {
         {label}
       </div>
       <div className={`font-display ${tiny ? "text-2xl" : "text-3xl"} mt-1`}>
+        {value}
+      </div>
+    </div>
+  );
+}
+
+function DarkStat({ label, value }) {
+  return (
+    <div>
+      <div className="text-[10px] uppercase tracking-[0.22em] text-[#888]">
+        {label}
+      </div>
+      <div className="font-display text-2xl mt-1 text-[#F4F4F0]">
         {value}
       </div>
     </div>
