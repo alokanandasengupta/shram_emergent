@@ -33,6 +33,14 @@ Build a prototype for founders. A standalone single-page web tool that surfaces 
 - New `BrowserRouter` setup with routes `/` (MainFlow) and `/r/:sessionId` (SharePageWrapper). Owner stays at `/` after their own scan (full features); only people clicking a shared URL land at `/r/:id` (readOnly).
 - Shram crystal SVG mark, About link, and footer matching shram.ai layout.
 
+### v3 — Three new founder-pitch experiments (2026-04-27)
+- Dataset: ingested `experiments_dataset.xlsx` (1000 records with `exp01_productivity_frame`, `exp01_anxiety_removal_frame`, `exp02_dread_label`, `quiet_close_sentence`, `stayed_warm_today` columns) → `/app/backend/experiments_dataset.json`.
+- **Experiment 01 — The Framing Switch**: side-by-side cards comparing productivity vs anxiety-removal copy of the same notification. User taps "which made you feel something?" → backend records vote → live tally bar at the bottom of each card. Voting kill-condition test for the founders' positioning hypothesis.
+- **Experiment 02 — The Dread Naming Test**: 3 cards (one per bucket: investor / contractor / warm_intro) drawn live from dataset. User picks which thread they'd most hate to forget → reveals the dread hierarchy live.
+- **Experiment 04 — The Quiet Close**: post-results morning sentence section. If session_id provided, Gemini personalises a one-sentence "relief" headline using the user's actual scanned threads (e.g. "Nikhil is back at the top of your screen after Priya's intro sat silent... You did not lose that one."). Pre-written shareable text plus Copy + Post-on-X buttons; share intents recorded for the bottom-funnel growth metric.
+- New aggregate endpoint `GET /api/exp/results` for the founders to review all signals in one place.
+- Layout reorganized: Hero → Exp 01 → Exp 02 → Exp 03 (Cold Audit intro + Connect button reused) → [scan flow] → Results + Quiet Close + Request Access.
+
 ## User Personas
 1. **Founder/operator** receiving the live pitch — sees their pain quantified in 5 seconds
 2. **Shram team** — uses `/api/access/requests` to see captured leads

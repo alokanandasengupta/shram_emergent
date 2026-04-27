@@ -47,7 +47,7 @@ export default function QuietClose({ apiBase, sessionId }) {
   const tweet = async () => {
     if (!data) return;
     const text = encodeURIComponent(data.share_text);
-    window.open(`https://twitter.com/intent/tweet?text=${text}`, "_blank", "noopener");
+    window.open(`https://x.com/intent/post?text=${text}`, "_blank", "noopener");
     try {
       await axios.post(`${apiBase}/exp/quiet-close/share`, {
         sentence: data.sentence,
