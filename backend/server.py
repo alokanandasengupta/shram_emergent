@@ -595,8 +595,10 @@ async def dread_tally():
 async def quiet_close(payload: QuietCloseRequest):
     """
     Generate the morning Quiet Close sentence. If a scan session is provided,
-    use Gemini to draft a personalized one; otherwise pick from the dataset's
-    pre-written pool.
+    use Gemini to draft a personalized one based on the user's actual scan.
+    Otherwise (preview / sample path) call Gemini with a generic founder
+    scenario so the sample feels alive — falling back to the dataset pool
+    if Gemini fails.
     """
     sentence: Optional[str] = None
     source = "dataset"
@@ -634,6 +636,37 @@ async def quiet_close(payload: QuietCloseRequest):
             except Exception as e:
                 logger.error(f"Quiet close Gemini failed: {e}", exc_info=True)
                 sentence = None
+    else:
+        # Preview / sample path — Gemini generates a fresh founder-morning
+        # sample so the preview feels alive (not a stale dataset string).
+        try:
+            chat = LlmChat(
+                api_key=EMERGENT_LLM_KEY,
+                session_id=f"quiet-close-preview-{uuid.uuid4()}",
+                system_message=(
+                    "You write Shram's Quiet Close morning sentence. One sentence. "
+                    "Specific, named, stakes-clear. Reference a named contact, a "
+                    "named deal or thread, and a clear consequence that was avoided. "
+                    "Voice: calm, present tense, never generic. End with a short "
+                    "affirmation of 5 to 7 words. No exclamation marks. No quotes. "
+                    "No preamble. Output only the sentence."
+                ),
+            ).with_model("gemini", "gemini-3-flash-preview")
+            sentence = (
+                await chat.send_message(
+                    UserMessage(
+                        text=(
+                            "Generate a sample Quiet Close sentence for a founder "
+                            "who nearly missed following up with an investor named "
+                            "Arjun about a pilot contract. Shram caught it overnight."
+                        )
+                    )
+                )
+            ).strip().strip('"')
+            # source stays "dataset" — this is still the sample/preview path
+        except Exception as e:
+            logger.error(f"Quiet close preview Gemini failed: {e}", exc_info=True)
+            sentence = None
 
     if not sentence:
         if QUIET_CLOSE_POOL:

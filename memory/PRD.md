@@ -47,6 +47,13 @@ Build a prototype for founders. A standalone single-page web tool that surfaces 
 - The post-audit Quiet Close (after results) keeps the share UI; the preview replaces share with the audit CTA.
 - Landing now has TWO conversion surfaces to the audit: Hero's Connect Gmail (top) AND Quiet Close preview's "See your version" (bottom). Both call the same scan flow.
 
+### v3.2 — Polish + attribution + thinking tabs (2026-04-27)
+- **`<ThinkingTab>` shared component** (Radix Collapsible + smooth height animation). Added "The thinking behind this experiment" disclosure to all 4 experiment sections. Closed by default, italic editorial prose on expand, kebab-cased data-testids on each (`framing-thinking-tab`, `dread-thinking-tab`, `audit-thinking-tab`, `quiet-close-thinking-tab`).
+- **Quiet Close preview = live Gemini** when no `session_id`. Backend `/api/exp/quiet-close` now calls Gemini with the Arjun pilot-contract prompt for every preview load (falls back to dataset pool if Gemini fails). The preview sentence feels alive on every refresh instead of being a stale dataset string.
+- **Contextual response line** under FramingSwitch vote: shows "Most people do. It is also the one that does not change behaviour." when A is chosen, "That is what Shram sounds like." when B is chosen.
+- **Two-line preview time label**: "07:14" / "A REAL FOUNDER, TODAY" stacked in mono caps for visual weight as a timestamp artifact.
+- **Footer attribution**: replaced the generic Privacy/Terms/Contact links in `RequestAccess.jsx` with a designer credit block — "DESIGNED AND BUILT BY · Alokananda Sengupta · Applying for Founder's Office, Shram, April 2026 · Could not test the desktop app. M1 restriction. Built this instead. · Get in touch (mailto)". Below the two-column footer, a centered dataset disclosure band: "BUILT ON TOP OF AI GENERATED DUMMY DATASET · NO REAL INBOX DATA USED · GEMINI 3 FLASH · FEW-SHOT RAG".
+
 ## User Personas
 1. **Founder/operator** receiving the live pitch — sees their pain quantified in 5 seconds
 2. **Shram team** — uses `/api/access/requests` to see captured leads

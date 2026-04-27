@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Copy, Check, Send, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
+import ThinkingTab from "@/components/ThinkingTab";
 
 export default function QuietClose({
   apiBase,
@@ -118,9 +119,20 @@ export default function QuietClose({
             </div>
           ) : (
             <>
-              <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#A89B92]">
-                {preview ? "07:14 \u00b7 a real founder, today" : "07:14 \u00b7 tomorrow"}
-              </div>
+              {preview ? (
+                <div className="space-y-1">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#A89B92]">
+                    07:14
+                  </div>
+                  <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#A89B92]">
+                    A REAL FOUNDER, TODAY
+                  </div>
+                </div>
+              ) : (
+                <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#A89B92]">
+                  07:14 &middot; tomorrow
+                </div>
+              )}
               <p
                 className="mt-4 font-display text-3xl sm:text-4xl lg:text-5xl leading-[1.15] text-[#1A1614]"
                 data-testid={
@@ -171,6 +183,26 @@ export default function QuietClose({
               </p>
             </div>
           </div>
+        )}
+
+        {preview && data && (
+          <ThinkingTab testId="quiet-close-thinking-tab">
+            The best moment in Shram&rsquo;s product is private. The user
+            feels relief when a follow-up is caught. Nobody else encounters
+            it. There is no growth surface at the bottom of the funnel. The
+            Quiet Close fires the first time the laptop opens after midnight.
+            One sentence generated from real activity specific to that day.
+            Below it one optional action: send this to someone who needs it.
+            Pre-written share text: Started my day with this from Shram.
+            Worth trying. The user is in their most positive emotional state
+            of the product experience. Morning before the day begins relief
+            confirmed. That is when people share. The person who receives a
+            shared Quiet Close sentence is inside the exact professional
+            network where Shram&rsquo;s ICP lives. They click through to the
+            Cold Audit. They see their own cold threads. The bottom funnel
+            feeds the top funnel. The loop closes. Kill condition: share
+            rate below 15 percent of active users in four weeks.
+          </ThinkingTab>
         )}
 
         {/* Post-audit Share UI */}

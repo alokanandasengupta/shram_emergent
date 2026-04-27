@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { ArrowRight, Check } from "lucide-react";
+import ThinkingTab from "@/components/ThinkingTab";
 
 export default function FramingSwitch({ apiBase }) {
   const [pair, setPair] = useState(null);
@@ -114,6 +115,32 @@ export default function FramingSwitch({ apiBase }) {
             </span>
           )}
         </div>
+        {voted && (
+          <p
+            className="mt-6 font-display text-xl italic text-[#6B5F58] max-w-2xl"
+            data-testid="framing-context-line"
+          >
+            {voted === "A"
+              ? "Most people do. It is also the one that does not change behaviour."
+              : "That is what Shram sounds like."}
+          </p>
+        )}
+
+        <ThinkingTab testId="framing-thinking-tab">
+          Shram is not a productivity tool. It is an anxiety removal tool.
+          These are different value propositions and they attract different
+          users. The productivity frame is clean and factual. It creates mild
+          guilt. The anxiety-removal frame offers relief. It names something
+          the user already feels but has not articulated. This experiment
+          puts both frames in front of the same person in the same session
+          and asks them to feel the difference rather than evaluate it
+          analytically. If the founders tap Version B, the repositioning
+          thesis has passed its most important test. If they tap Version A,
+          the productivity frame wins and the argument needs rethinking.
+          Qualitative signal from two founders is worth more than
+          quantitative signal from 500 strangers at this stage. Kill
+          condition: both founders choose Version A.
+        </ThinkingTab>
       </div>
     </section>
   );

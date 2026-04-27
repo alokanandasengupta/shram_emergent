@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import ThinkingTab from "@/components/ThinkingTab";
 
 export default function ColdAuditIntro({ onConnect }) {
   return (
@@ -42,6 +43,22 @@ export default function ColdAuditIntro({ onConnect }) {
             </p>
           </div>
         </div>
+
+        <ThinkingTab testId="audit-thinking-tab">
+          This is the top-of-funnel surface Shram does not have today. A
+          non-user has no reason to care about Shram before they install
+          anything. This experiment gives them one. The user connects Gmail
+          read-only for sixty seconds. The tool scans the last ninety days
+          and returns one number: the exact count of threads where momentum
+          died. Below the number, the names. Below the names, a draft reply
+          for each one generated in their voice. No signup wall. The result
+          is the product demo. The number the user finds is more persuasive
+          than any copy about anxiety removal because it is their own data
+          made visible for the first time. Below the results one line: Shram
+          would have caught all of them. The experiment quantifies the pain
+          before asking anyone to change their behaviour. That is the only
+          PLG surface that converts a sceptic.
+        </ThinkingTab>
       </div>
     </section>
   );

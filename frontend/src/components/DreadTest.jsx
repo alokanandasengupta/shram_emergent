@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Check } from "lucide-react";
+import ThinkingTab from "@/components/ThinkingTab";
 
 const BUCKET_TITLES = {
   investor:    "The investor",
@@ -106,6 +107,25 @@ export default function DreadTest({ apiBase }) {
             </p>
           </div>
         )}
+
+        <ThinkingTab testId="dread-thinking-tab">
+          The Shram thesis assumes the dread is undifferentiated. This
+          experiment tests whether it actually has a hierarchy. A
+          founder&rsquo;s inbox contains at least three distinct anxiety
+          shapes: the investor who has not heard back, the contractor who is
+          blocked waiting on an approval, the warm intro that was never
+          converted. Each one carries a different emotional weight and a
+          different consequence if dropped. Which one the founder most fears
+          losing tells Shram which thread type to surface first at
+          activation. The warm intro dread suggests Shram should lead with
+          relationship capital. The investor dread suggests revenue anxiety
+          is the dominant signal. The contractor dread suggests operational
+          guilt is the hook. Each answer points to a different
+          first-impression design for the product. Kill condition: if all
+          three are chosen with roughly equal frequency the dread is
+          undifferentiated and Shram should surface threads in chronological
+          order by default.
+        </ThinkingTab>
       </div>
     </section>
   );

@@ -129,17 +129,43 @@ export default function RequestAccess({ sessionId, coldCount, apiBase }) {
         </div>
 
         {/* Calm footer */}
-        <div className="mt-24 lg:mt-32 border-t border-[#E5D2C7] pt-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <ShramLogo size={28} className="text-[#1A1614]" />
-            <span className="font-display text-2xl">
-              Shram <span className="italic text-[#6B5F58]">finds your follow-ups and does them for you.</span>
-            </span>
+        <div className="mt-24 lg:mt-32 border-t border-[#E5D2C7] pt-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <div className="lg:col-span-7 flex items-start gap-3">
+              <ShramLogo size={28} className="text-[#1A1614]" />
+              <span className="font-display text-2xl leading-snug">
+                Shram <span className="italic text-[#6B5F58]">finds your follow-ups and does them for you.</span>
+              </span>
+            </div>
+            <div className="lg:col-span-5" data-testid="footer-attribution">
+              <div className="font-mono text-xs uppercase tracking-[0.16em] text-[#A89B92]">
+                Designed and built by
+              </div>
+              <div className="font-display text-lg text-[#1A1614] mt-1">
+                Alokananda Sengupta
+              </div>
+              <div className="italic text-sm text-[#6B5F58] mt-1">
+                Applying for Founder&rsquo;s Office, Shram, April 2026
+              </div>
+              <div className="italic text-xs text-[#A89B92] mt-1">
+                Could not test the desktop app. M1 restriction. Built this
+                instead.
+              </div>
+              <a
+                href="mailto:alokananda.sengupta@gmail.com"
+                className="italic text-sm text-[#6B5F58] underline-offset-4 hover:underline mt-2 inline-block"
+                data-testid="footer-get-in-touch"
+              >
+                Get in touch
+              </a>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-[#6B5F58]">
-            <span>Privacy policy</span>
-            <span>Terms of service</span>
-            <span>Contact</span>
+          <div
+            className="mt-10 pt-6 border-t border-[#E5D2C7] text-center font-mono text-[10px] text-[#A89B92] uppercase tracking-[0.22em]"
+            data-testid="footer-dataset-disclosure"
+          >
+            BUILT ON TOP OF AI GENERATED DUMMY DATASET &middot; NO REAL INBOX
+            DATA USED &middot; GEMINI 3 FLASH &middot; FEW-SHOT RAG
           </div>
         </div>
       </div>
