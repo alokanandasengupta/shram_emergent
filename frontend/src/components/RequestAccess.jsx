@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { ArrowRight, Check } from "lucide-react";
 import { toast } from "sonner";
-import ShramLogo from "@/components/ShramLogo";
+import Footer from "@/components/Footer";
 
 export default function RequestAccess({ sessionId, coldCount, apiBase }) {
   const [email, setEmail] = useState("");
@@ -36,7 +36,7 @@ export default function RequestAccess({ sessionId, coldCount, apiBase }) {
     >
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center gap-3 fade-up" data-testid="cta-kicker">
-          <ShramLogo size={20} className="text-[#1A1614]" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#C84630] pulse-dot" />
           <span className="eyebrow">Never let a conversation go cold</span>
         </div>
 
@@ -129,43 +129,8 @@ export default function RequestAccess({ sessionId, coldCount, apiBase }) {
         </div>
 
         {/* Calm footer */}
-        <div className="mt-24 lg:mt-32 border-t border-[#E5D2C7] pt-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            <div className="lg:col-span-7 flex items-start gap-3">
-              <ShramLogo size={28} className="text-[#1A1614]" />
-              <span className="font-display text-2xl leading-snug">
-                Shram <span className="italic text-[#6B5F58]">finds your follow-ups and does them for you.</span>
-              </span>
-            </div>
-            <div className="lg:col-span-5" data-testid="footer-attribution">
-              <div className="font-mono text-xs uppercase tracking-[0.16em] text-[#A89B92]">
-                Designed and built by Alokananda Sengupta
-              </div>
-              <div className="text-sm text-[#3a302b] mt-2">
-                Applying for Founder&rsquo;s Office &middot; Shram &middot; April 2026
-              </div>
-              <a
-                href="mailto:dia.sngpta@gmail.com"
-                className="text-sm text-[#1A1614] underline-offset-4 hover:underline mt-2 inline-block"
-                data-testid="footer-email-link"
-              >
-                dia.sngpta@gmail.com
-              </a>
-              <div className="italic text-xs text-[#A89B92] mt-2">
-                Could not test the desktop app, my Mac predates M1. Built
-                this instead.
-              </div>
-            </div>
-          </div>
-          <div
-            className="mt-10 pt-6 border-t border-[#E5D2C7] text-center font-mono text-[10px] text-[#A89B92] uppercase tracking-[0.22em]"
-            data-testid="footer-dataset-disclosure"
-          >
-            BUILT ON TOP OF AI GENERATED DUMMY DATASET &middot; NO REAL INBOX
-            DATA USED &middot; GEMINI 3 FLASH &middot; FEW-SHOT RAG
-          </div>
-        </div>
       </div>
+      <Footer />
     </section>
   );
 }

@@ -11,6 +11,7 @@ import FramingSwitch from "@/components/FramingSwitch";
 import DreadTest from "@/components/DreadTest";
 import QuietClose from "@/components/QuietClose";
 import ColdAuditIntro from "@/components/ColdAuditIntro";
+import Footer from "@/components/Footer";
 import { Toaster } from "@/components/ui/sonner";
 import axios from "axios";
 
@@ -60,6 +61,7 @@ function MainFlow() {
           <DreadTest apiBase={API} />
           <ColdAuditIntro onConnect={startScan} />
           <QuietClose apiBase={API} preview={true} onStartScan={startScan} />
+          <Footer />
         </>
       )}
       {stage === "scanning" && <Scanning />}

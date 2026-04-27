@@ -1,5 +1,4 @@
 import { ArrowRight } from "lucide-react";
-import ShramLogo from "@/components/ShramLogo";
 
 export default function Hero({ onConnect, error }) {
   return (
@@ -102,12 +101,9 @@ export default function Hero({ onConnect, error }) {
 
         {/* Closing line */}
         <div className="mt-24 lg:mt-32 border-t border-[#E5D2C7] pt-10 flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:justify-between">
-          <div className="flex items-center gap-3">
-            <ShramLogo size={20} className="text-[#1A1614] float-gentle" />
-            <span className="font-display text-2xl">
-              Shram <span className="italic text-[#6B5F58]">finds your follow-ups and does them for you.</span>
-            </span>
-          </div>
+          <span className="font-display text-2xl">
+            Shram <span className="italic text-[#6B5F58]">finds your follow-ups and does them for you.</span>
+          </span>
           <span className="eyebrow">Built for founders &middot; v0.1 prototype</span>
         </div>
       </div>

@@ -1,5 +1,3 @@
-import ShramLogo from "@/components/ShramLogo";
-
 export default function TopBar({ onReset, stage }) {
   return (
     <header
@@ -9,11 +7,13 @@ export default function TopBar({ onReset, stage }) {
       <div className="flex items-center justify-between px-6 sm:px-10 lg:px-20 h-20">
         <button
           onClick={onReset}
-          className="flex items-center gap-3"
+          className="flex items-center"
           data-testid="brand-home-link"
           aria-label="Shram home"
         >
-          <ShramLogo size={28} className="text-[#1A1614]" />
+          <span className="font-display text-2xl tracking-[-0.01em] text-[#1A1614]">
+            Shram
+          </span>
         </button>
         <nav className="flex items-center gap-8">
           <a

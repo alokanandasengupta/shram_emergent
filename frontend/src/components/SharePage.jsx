@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import Results from "@/components/Results";
 import { ArrowRight } from "lucide-react";
-import ShramLogo from "@/components/ShramLogo";
 
 export default function SharePage({ data, loading, notFound, apiBase, onStartOwn }) {
   useEffect(() => {
@@ -31,7 +30,7 @@ export default function SharePage({ data, loading, notFound, apiBase, onStartOwn
         data-testid="share-not-found"
       >
         <div className="flex items-center gap-3">
-          <ShramLogo size={20} className="text-[#1A1614]" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#C84630]" />
           <span className="eyebrow">This audit can&rsquo;t be found</span>
         </div>
         <h2 className="font-display mt-6 text-5xl sm:text-7xl leading-[0.95]">
@@ -63,17 +62,14 @@ export default function SharePage({ data, loading, notFound, apiBase, onStartOwn
       >
         <div className="max-w-5xl mx-auto">
           <div className="bg-white/70 border border-[#E5D2C7] rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <ShramLogo size={22} className="text-[#1A1614]" />
-              <div>
-                <div className="eyebrow not-italic uppercase tracking-[0.16em] text-xs text-[#A89B92]">
-                  A founder shared their cold-conversation audit with you
-                </div>
-                <p className="font-display text-2xl mt-1">
-                  They have <span className="italic">{data.cold_count}</span>{" "}
-                  conversations going cold right now.
-                </p>
+            <div>
+              <div className="eyebrow not-italic uppercase tracking-[0.16em] text-xs text-[#A89B92]">
+                A founder shared their cold-conversation audit with you
               </div>
+              <p className="font-display text-2xl mt-1">
+                They have <span className="italic">{data.cold_count}</span>{" "}
+                conversations going cold right now.
+              </p>
             </div>
             <button
               onClick={onStartOwn}

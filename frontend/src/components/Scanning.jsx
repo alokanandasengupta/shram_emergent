@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import ShramLogo from "@/components/ShramLogo";
 
 const STAGES = [
   {
@@ -131,11 +130,6 @@ export default function Scanning() {
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Footer crystal */}
-        <div className="mt-20 flex justify-center">
-          <ShramLogo size={36} className="text-[#1A1614] float-gentle opacity-70" />
         </div>
       </div>
     </section>
