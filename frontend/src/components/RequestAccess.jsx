@@ -139,25 +139,22 @@ export default function RequestAccess({ sessionId, coldCount, apiBase }) {
             </div>
             <div className="lg:col-span-5" data-testid="footer-attribution">
               <div className="font-mono text-xs uppercase tracking-[0.16em] text-[#A89B92]">
-                Designed and built by
+                Designed and built by Alokananda Sengupta
               </div>
-              <div className="font-display text-lg text-[#1A1614] mt-1">
-                Alokananda Sengupta
-              </div>
-              <div className="italic text-sm text-[#6B5F58] mt-1">
-                Applying for Founder&rsquo;s Office, Shram, April 2026
-              </div>
-              <div className="italic text-xs text-[#A89B92] mt-1">
-                Could not test the desktop app. M1 restriction. Built this
-                instead.
+              <div className="text-sm text-[#3a302b] mt-2">
+                Applying for Founder&rsquo;s Office &middot; Shram &middot; April 2026
               </div>
               <a
-                href="mailto:alokananda.sengupta@gmail.com"
-                className="italic text-sm text-[#6B5F58] underline-offset-4 hover:underline mt-2 inline-block"
-                data-testid="footer-get-in-touch"
+                href="mailto:dia.sngpta@gmail.com"
+                className="text-sm text-[#1A1614] underline-offset-4 hover:underline mt-2 inline-block"
+                data-testid="footer-email-link"
               >
-                Get in touch
+                dia.sngpta@gmail.com
               </a>
+              <div className="italic text-xs text-[#A89B92] mt-2">
+                Could not test the desktop app, my Mac predates M1. Built
+                this instead.
+              </div>
             </div>
           </div>
           <div
