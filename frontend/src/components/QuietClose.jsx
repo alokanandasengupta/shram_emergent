@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Copy, Check, Send } from "lucide-react";
+import { Copy, Check, Send, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 
-export default function QuietClose({ apiBase, sessionId }) {
+export default function QuietClose({
+  apiBase,
+  sessionId,
+  preview = false,
+  onStartScan,
+}) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -31,7 +36,6 @@ export default function QuietClose({ apiBase, sessionId }) {
       await navigator.clipboard.writeText(data.share_text);
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
-      // record share intent
       await axios.post(`${apiBase}/exp/quiet-close/share`, {
         sentence: data.sentence,
         session_id: sessionId || null,
@@ -60,35 +64,52 @@ export default function QuietClose({ apiBase, sessionId }) {
     }
   };
 
+  const sectionTestId = preview
+    ? "quiet-close-preview-section"
+    : "quiet-close-section";
+
   return (
     <section
       className="px-6 sm:px-10 lg:px-20 py-24 lg:py-32 border-t border-[#E5D2C7] bg-[#F9EFE9]/60 relative overflow-hidden"
-      data-testid="quiet-close-section"
+      data-testid={sectionTestId}
+      id={preview ? "exp-quiet-preview" : "exp-quiet"}
     >
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center gap-3 fade-up">
           <span className="editorial-numeral text-[#D9C4B7] text-3xl">04</span>
           <div>
             <div className="eyebrow not-italic uppercase tracking-[0.16em] text-xs text-[#A89B92]">
-              The Quiet Close &middot; Tomorrow morning, before the day begins
+              {preview
+                ? "Experiment 04 \u00b7 The Quiet Close \u00b7 a sample, not your data"
+                : "The Quiet Close \u00b7 Tomorrow morning, before the day begins"}
             </div>
             <h2 className="font-display text-3xl sm:text-5xl lg:text-6xl leading-[0.98] mt-2 tracking-[-0.015em]">
-              You open your laptop. <br />
-              The first thing you see is{" "}
-              <span className="italic">relief</span>.
+              {preview ? (
+                <>
+                  Tomorrow morning could look <br />
+                  like <span className="italic">this</span>.
+                </>
+              ) : (
+                <>
+                  You open your laptop. <br />
+                  The first thing you see is{" "}
+                  <span className="italic">relief</span>.
+                </>
+              )}
             </h2>
           </div>
         </div>
 
         <p className="mt-6 text-lg text-[#3a302b] max-w-2xl leading-relaxed italic">
-          Not a streak. Not a dashboard. One sentence, generated from your
-          activity, that proves Shram worked while you slept.
+          {preview
+            ? "Below is what a founder saw at 7:14 AM today — one sentence, generated from the threads Shram caught overnight. Yours will name your contacts, your wins, your relief."
+            : "Not a streak. Not a dashboard. One sentence, generated from your activity, that proves Shram worked while you slept."}
         </p>
 
         {/* The sentence */}
         <div
           className="mt-14 lg:mt-20 bg-white/80 border border-[#E5D2C7] rounded-[28px] p-10 lg:p-14 text-center fade-up"
-          data-testid="quiet-close-card"
+          data-testid={preview ? "quiet-close-preview-card" : "quiet-close-card"}
           style={{ animationDelay: "200ms" }}
         >
           {loading || !data ? (
@@ -98,16 +119,20 @@ export default function QuietClose({ apiBase, sessionId }) {
           ) : (
             <>
               <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#A89B92]">
-                07:14 &middot; tomorrow
+                {preview ? "07:14 \u00b7 a real founder, today" : "07:14 \u00b7 tomorrow"}
               </div>
               <p
                 className="mt-4 font-display text-3xl sm:text-4xl lg:text-5xl leading-[1.15] text-[#1A1614]"
-                data-testid="quiet-close-sentence"
+                data-testid={
+                  preview ? "quiet-close-preview-sentence" : "quiet-close-sentence"
+                }
               >
                 {data.sentence}
               </p>
               <div className="mt-6 text-xs italic text-[#6B5F58]">
-                {data.source === "gemini"
+                {preview
+                  ? "a sample from the dataset \u2014 not your data, not yet"
+                  : data.source === "gemini"
                   ? "drafted from your scan"
                   : "from a real founder's day"}
               </div>
@@ -115,8 +140,41 @@ export default function QuietClose({ apiBase, sessionId }) {
           )}
         </div>
 
-        {/* Share */}
-        {data && (
+        {/* Preview CTA — pulls users into the audit */}
+        {preview && data && (
+          <div className="mt-12 lg:mt-16 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="lg:col-span-7">
+              <div className="eyebrow not-italic uppercase tracking-[0.16em] text-xs text-[#A89B92]">
+                Closing the loop
+              </div>
+              <h3 className="font-display text-2xl sm:text-3xl mt-2 leading-tight">
+                Audit reveals the dread. The morning sentence is the relief.
+              </h3>
+              <p className="mt-4 text-base text-[#3a302b] max-w-xl leading-relaxed">
+                Connect your inbox once and Shram traces it. The number you
+                find this afternoon becomes the sentence you read tomorrow.
+                Sharing that sentence is how the loop closes.
+              </p>
+            </div>
+            <div className="lg:col-span-5 flex flex-col items-start lg:items-end gap-3">
+              <button
+                onClick={onStartScan}
+                className="pill-btn group"
+                data-testid="quiet-close-preview-cta"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-[#C84630] pulse-dot" />
+                <span>See your version &mdash; run the audit</span>
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              </button>
+              <p className="text-xs italic text-[#A89B92]">
+                Sixty seconds. Read-only. The sentence is yours after.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Post-audit Share UI */}
+        {!preview && data && (
           <div className="mt-10 lg:mt-14 grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-7">
               <div className="eyebrow not-italic uppercase tracking-[0.16em] text-xs text-[#A89B92]">

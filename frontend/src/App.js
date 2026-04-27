@@ -59,6 +59,7 @@ function MainFlow() {
           <FramingSwitch apiBase={API} />
           <DreadTest apiBase={API} />
           <ColdAuditIntro onConnect={startScan} />
+          <QuietClose apiBase={API} preview={true} onStartScan={startScan} />
         </>
       )}
       {stage === "scanning" && <Scanning />}

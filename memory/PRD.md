@@ -41,6 +41,12 @@ Build a prototype for founders. A standalone single-page web tool that surfaces 
 - New aggregate endpoint `GET /api/exp/results` for the founders to review all signals in one place.
 - Layout reorganized: Hero → Exp 01 → Exp 02 → Exp 03 (Cold Audit intro + Connect button reused) → [scan flow] → Results + Quiet Close + Request Access.
 
+### v3.1 — Quiet Close PREVIEW on the landing (2026-04-27)
+- Founder PLG insight: users should see the WHOLE flywheel (top-of-funnel audit → bottom-of-funnel relief → share → loop back) before committing.
+- Added `preview` prop to `QuietClose.jsx`. On the landing page (between Cold Audit Intro and end of page), a preview Quiet Close is rendered with: (a) a sample sentence from the dataset, clearly tagged "a sample from the dataset — not your data, not yet"; (b) a "Closing the loop" copy block; (c) a primary CTA "See your version — run the audit" (data-testid='quiet-close-preview-cta') that triggers the same `startScan` handler.
+- The post-audit Quiet Close (after results) keeps the share UI; the preview replaces share with the audit CTA.
+- Landing now has TWO conversion surfaces to the audit: Hero's Connect Gmail (top) AND Quiet Close preview's "See your version" (bottom). Both call the same scan flow.
+
 ## User Personas
 1. **Founder/operator** receiving the live pitch — sees their pain quantified in 5 seconds
 2. **Shram team** — uses `/api/access/requests` to see captured leads
