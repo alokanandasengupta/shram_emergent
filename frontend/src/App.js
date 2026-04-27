@@ -7,6 +7,10 @@ import Results from "@/components/Results";
 import RequestAccess from "@/components/RequestAccess";
 import TopBar from "@/components/TopBar";
 import SharePage from "@/components/SharePage";
+import FramingSwitch from "@/components/FramingSwitch";
+import DreadTest from "@/components/DreadTest";
+import QuietClose from "@/components/QuietClose";
+import ColdAuditIntro from "@/components/ColdAuditIntro";
 import { Toaster } from "@/components/ui/sonner";
 import axios from "axios";
 
@@ -23,6 +27,8 @@ function MainFlow() {
   const startScan = async () => {
     setStage("scanning");
     setScanError(null);
+    // scroll to top so user sees the scanning animation cleanly
+    window.scrollTo({ top: 0, behavior: "instant" });
     try {
       const reqPromise = axios.post(`${API}/scan`);
       const minDelay = new Promise((r) => setTimeout(r, 5400));
@@ -47,11 +53,19 @@ function MainFlow() {
   return (
     <>
       <TopBar onReset={reset} stage={stage} />
-      {stage === "hero" && <Hero onConnect={startScan} error={scanError} />}
+      {stage === "hero" && (
+        <>
+          <Hero onConnect={startScan} error={scanError} />
+          <FramingSwitch apiBase={API} />
+          <DreadTest apiBase={API} />
+          <ColdAuditIntro onConnect={startScan} />
+        </>
+      )}
       {stage === "scanning" && <Scanning />}
       {stage === "results" && scanResult && (
         <>
           <Results data={scanResult} onReset={reset} apiBase={API} />
+          <QuietClose apiBase={API} sessionId={scanResult.session_id} />
           <RequestAccess
             sessionId={scanResult.session_id}
             coldCount={scanResult.cold_count}

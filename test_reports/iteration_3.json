@@ -1,0 +1,44 @@
+{
+  "summary": "Iteration 3 e2e testing complete. 26/26 backend pytest tests pass (13 prior + 13 new for /api/exp/* endpoints). All 4 experiment surfaces validated end-to-end. Frontend full flow verified: home page stacks Hero -> FramingSwitch -> DreadTest -> ColdAuditIntro in correct vertical order; framing vote toggles voted-badge and disables both cards; dread test shows exactly 3 cards (investor/contractor/warm_intro) and reveals percentages on click; ColdAuditIntro 'Run the audit on me' button triggers same scan flow as hero. After scan, Results stays at '/' and QuietClose auto-loads with Gemini-generated sentence (verified source='gemini' returning a contextual sentence referencing the actual contact name 'Siddharth' from the scan). Copy & Post-on-X buttons both work and post share-intent records. Share page /r/<sid> correctly excludes QuietClose, FramingSwitch, DreadTest and ColdAuditIntro (intentional per spec). Invalid /r/<id> shows share-not-found fallback.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_experiments.py",
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "Cosmetic only: QuietClose component opens Twitter intent via 'https://twitter.com/intent/tweet' but X.com auto-redirects to 'https://x.com/intent/tweet'. Works fine, but updating the URL to 'https://x.com/intent/post' would skip the redirect and feel snappier.",
+    "test_quiet_close_with_session_id_gemini in test_experiments.py emits a PytestReturnNotNoneWarning because it returns a tuple. Harmless; remove the trailing 'return d, contact_names' to silence the warning."
+  ],
+  "critical_code_review_comments": [
+    "GET /api/exp/dread/sample correctly samples ONE card from each of the 3 buckets (investor, contractor, warm_intro). The relationship_type values in the dataset must contain all 3 keys; verified by test_dread_sample_three_buckets. Good.",
+    "POST /api/exp/quiet-close picks the LEAST cold thread (sorted ascending [0]) for Gemini context — intentional per spec ('closest to warm'). Confirmed in code.",
+    "Quiet Close Gemini path generated 'The thread with Siddharth remains active...' — names a real contact from the actual scan, exactly as required.",
+    "Source attribution returned correctly: source='gemini' when session_id provided and gemini succeeds, source='dataset' on fallback or no session_id. Good.",
+    "share_text consistently starts with 'Started my day with this from Shram. Worth trying.' — verified at API and UI.",
+    "POST /api/exp/quiet-close/share records both 'copy' and 'twitter' channels and returns updated total_shares. Aggregated correctly into /api/exp/results.exp04_quiet_close_shares.",
+    "FramingSwitch and DreadTest disable all cards after first vote (both via voted state + disabled prop). Prevents double-voting client-side; backend has no idempotency guard but spec doesn't require one.",
+    "ColdAuditIntro reuses the parent onConnect handler (same as Hero's Connect Gmail) — no logic duplication. Clean.",
+    "MainFlow keeps QuietClose, FramingSwitch, DreadTest, ColdAuditIntro out of /r/<sid> route by virtue of SharePageWrapper rendering only SharePage + RequestAccess. Confirmed via DOM checks on share page.",
+    "All new interactive elements have data-testid: exp-framing-section, frame-card-A/B, framing-voted-badge, exp-dread-section, dread-card-{bucket}, dread-voted-summary, exp-audit-intro-section, audit-intro-connect-button, quiet-close-section, quiet-close-sentence, quiet-close-card, quiet-close-share-card, quiet-close-copy-button, quiet-close-tweet-button, quiet-close-shared-confirmation. Excellent testability.",
+    "Code organization: server.py is now ~696 lines. Approaching the 700-line guideline; consider splitting experiments routes into a separate module (e.g., backend/routes/experiments.py) in a future iteration."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_experiments.py (NEW — 13 tests covering framing, dread, quiet-close, results)"
+  ],
+  "success_rate": {"backend": "100%", "frontend": "100%"},
+  "test_credentials": "N/A — Gmail OAuth simulated per spec.",
+  "seed_data_creation": "Multiple TEST_-labeled framing votes (A and B) and dread votes (investor) inserted via tests; one TEST_ quiet_close share recorded. Two real Gemini-backed scan sessions created for /api/draft and /api/exp/quiet-close gemini-path verification.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "26 pytest tests at /app/backend/tests/{backend_test.py,test_experiments.py} all pass. Quiet Close Gemini path takes ~2-4s; fall-back to dataset is instant. /r/<sid> intentionally suppresses QuietClose + experiments — only SharePage + RequestAccess render. Twitter intent uses twitter.com URL that browser auto-redirects to x.com (confirmed working, but assert on 'twitter.com' in URL will fail; check for 'intent/tweet' substring instead).",
+  "rca of the issue": "N/A — no defects. Iteration 3 (3 new experiments + Gemini-personalized Quiet Close + persistent vote/share tallies) ships ready."
+}

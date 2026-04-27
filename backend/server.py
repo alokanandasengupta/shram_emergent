@@ -32,10 +32,31 @@ db = client[os.environ['DB_NAME']]
 
 EMERGENT_LLM_KEY = os.environ['EMERGENT_LLM_KEY']
 
-# Load dataset once at startup
+# Load datasets once at startup
 DATASET_PATH = ROOT_DIR / 'dataset.json'
 with open(DATASET_PATH) as f:
     DATASET: List[Dict[str, Any]] = json.load(f)
+
+EXP_DATASET_PATH = ROOT_DIR / 'experiments_dataset.json'
+with open(EXP_DATASET_PATH) as f:
+    EXP_DATASET: List[Dict[str, Any]] = json.load(f)
+
+# Pools for the experiments
+FRAMING_POOL = [
+    r for r in EXP_DATASET
+    if r.get("exp01_productivity_frame") and r.get("exp01_anxiety_removal_frame")
+]
+
+DREAD_BUCKETS: Dict[str, List[Dict[str, Any]]] = {}
+for r in EXP_DATASET:
+    rel = r.get("relationship_type")
+    if rel:
+        DREAD_BUCKETS.setdefault(rel, []).append(r)
+
+QUIET_CLOSE_POOL = [
+    r for r in EXP_DATASET
+    if r.get("stayed_warm_today") in (True, "True", 1) and r.get("quiet_close_sentence")
+]
 
 # Split: pool of ~30 labeled examples for few-shot, rest as "user inbox" pool
 random.seed(42)
@@ -398,6 +419,263 @@ async def stats():
         "dataset_size": len(DATASET),
         "labeled_pool_size": len(LABELED_POOL),
         "inbox_pool_size": len(INBOX_POOL),
+    }
+
+
+# =====================================================================
+# EXPERIMENTS
+# =====================================================================
+
+class FramingSample(BaseModel):
+    pair_id: str
+    productivity: str
+    anxiety_removal: str
+    contact_name: str
+    contact_company: Optional[str] = None
+    relationship_type: Optional[str] = None
+
+
+class FramingVote(BaseModel):
+    choice: str  # "A" (productivity) or "B" (anxiety_removal)
+    pair_id: Optional[str] = None
+    voter_label: Optional[str] = None  # e.g., "jay", "ojasvika", or anonymous
+
+
+class DreadCard(BaseModel):
+    bucket: str  # e.g. "investor", "contractor", "warm_intro"
+    contact_name: str
+    contact_company: Optional[str] = None
+    subject: str
+    last_message_preview: str
+    days_since_last_message: int
+    dread_label: str
+
+
+class DreadSample(BaseModel):
+    sample_id: str
+    cards: List[DreadCard]
+
+
+class DreadVote(BaseModel):
+    bucket: str
+    sample_id: Optional[str] = None
+    voter_label: Optional[str] = None
+
+
+class QuietCloseRequest(BaseModel):
+    session_id: Optional[str] = None
+    contact_hint: Optional[str] = None
+
+
+class QuietCloseResponse(BaseModel):
+    sentence: str
+    share_text: str
+    source: str  # "gemini" | "dataset"
+
+
+class ShareIntent(BaseModel):
+    sentence: str
+    session_id: Optional[str] = None
+    channel: Optional[str] = None  # "copy" | "twitter" | "slack" | etc.
+
+
+# ----- helpers -----
+def _bucket_for_relationship(rel: str) -> str:
+    """Map raw relationship_type to a coarser dread bucket the experiment cares about."""
+    if not rel:
+        return "other"
+    rel = str(rel).lower().strip()
+    if rel in ("investor", "vc"):
+        return "investor"
+    if rel in ("contractor", "vendor", "freelancer"):
+        return "contractor"
+    if rel in ("warm_intro", "warm_intros"):
+        return "warm_intro"
+    return rel  # client, partner, team, cofounder, recruiter etc.
+
+
+# ----- framing -----
+@api_router.get("/exp/framing/sample", response_model=FramingSample)
+async def get_framing_sample():
+    if not FRAMING_POOL:
+        raise HTTPException(status_code=500, detail="No framing pairs available")
+    r = random.choice(FRAMING_POOL)
+    return FramingSample(
+        pair_id=str(r["thread_id"]),
+        productivity=str(r["exp01_productivity_frame"]),
+        anxiety_removal=str(r["exp01_anxiety_removal_frame"]),
+        contact_name=str(r.get("contact_name") or ""),
+        contact_company=r.get("contact_company"),
+        relationship_type=r.get("relationship_type"),
+    )
+
+
+@api_router.post("/exp/framing")
+async def vote_framing(payload: FramingVote):
+    if payload.choice not in ("A", "B"):
+        raise HTTPException(status_code=400, detail="choice must be 'A' or 'B'")
+    doc = {
+        "id": str(uuid.uuid4()),
+        "choice": payload.choice,
+        "pair_id": payload.pair_id,
+        "voter_label": payload.voter_label,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.exp_framing_votes.insert_one(doc)
+    a = await db.exp_framing_votes.count_documents({"choice": "A"})
+    b = await db.exp_framing_votes.count_documents({"choice": "B"})
+    return {
+        "ok": True,
+        "your_choice": payload.choice,
+        "tally": {"A": a, "B": b, "total": a + b},
+    }
+
+
+@api_router.get("/exp/framing/tally")
+async def framing_tally():
+    a = await db.exp_framing_votes.count_documents({"choice": "A"})
+    b = await db.exp_framing_votes.count_documents({"choice": "B"})
+    return {"A": a, "B": b, "total": a + b}
+
+
+# ----- dread -----
+@api_router.get("/exp/dread/sample", response_model=DreadSample)
+async def get_dread_sample():
+    """Return one card per priority bucket: investor, contractor, warm_intro."""
+    sample_id = str(uuid.uuid4())
+    wanted = ["investor", "contractor", "warm_intro"]
+    cards: List[DreadCard] = []
+    for w in wanted:
+        pool = DREAD_BUCKETS.get(w, [])
+        if not pool:
+            continue
+        r = random.choice(pool)
+        cards.append(DreadCard(
+            bucket=w,
+            contact_name=str(r.get("contact_name") or ""),
+            contact_company=r.get("contact_company"),
+            subject=str(r.get("subject_or_topic") or r.get("thread_label") or ""),
+            last_message_preview=str(r.get("last_message_preview") or ""),
+            days_since_last_message=int(r.get("days_since_last_message") or 0),
+            dread_label=str(r.get("exp02_dread_label") or w),
+        ))
+    return DreadSample(sample_id=sample_id, cards=cards)
+
+
+@api_router.post("/exp/dread")
+async def vote_dread(payload: DreadVote):
+    if payload.bucket not in ("investor", "contractor", "warm_intro"):
+        raise HTTPException(status_code=400, detail="invalid bucket")
+    doc = {
+        "id": str(uuid.uuid4()),
+        "bucket": payload.bucket,
+        "sample_id": payload.sample_id,
+        "voter_label": payload.voter_label,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.exp_dread_votes.insert_one(doc)
+    tally = {}
+    for k in ("investor", "contractor", "warm_intro"):
+        tally[k] = await db.exp_dread_votes.count_documents({"bucket": k})
+    tally["total"] = sum(tally.values())
+    return {"ok": True, "your_choice": payload.bucket, "tally": tally}
+
+
+@api_router.get("/exp/dread/tally")
+async def dread_tally():
+    tally = {}
+    for k in ("investor", "contractor", "warm_intro"):
+        tally[k] = await db.exp_dread_votes.count_documents({"bucket": k})
+    tally["total"] = sum(tally.values())
+    return tally
+
+
+# ----- quiet close -----
+@api_router.post("/exp/quiet-close", response_model=QuietCloseResponse)
+async def quiet_close(payload: QuietCloseRequest):
+    """
+    Generate the morning Quiet Close sentence. If a scan session is provided,
+    use Gemini to draft a personalized one; otherwise pick from the dataset's
+    pre-written pool.
+    """
+    sentence: Optional[str] = None
+    source = "dataset"
+
+    if payload.session_id:
+        scan = await db.scans.find_one({"session_id": payload.session_id}, {"_id": 0})
+        if scan and scan.get("cold_threads"):
+            highest = sorted(
+                scan["cold_threads"], key=lambda t: t.get("cold_score_0_100", 0)
+            )[0]  # pick the LEAST cold (closest to "warm")
+            try:
+                chat = LlmChat(
+                    api_key=EMERGENT_LLM_KEY,
+                    session_id=f"quiet-close-{payload.session_id}",
+                    system_message=(
+                        "You write Shram's 'Quiet Close' — a single warm sentence "
+                        "that appears the morning after Shram saved a thread. Voice: "
+                        "calm, specific, one sentence, present tense. Never use "
+                        "exclamation marks. Reference the contact by first name. "
+                        "End with a 5-7 word affirmation like 'You did not lose that "
+                        "one.' or 'Nothing slipped.' or 'You caught it.' Output ONLY "
+                        "the sentence. No quotes, no preface."
+                    ),
+                ).with_model("gemini", "gemini-3-flash-preview")
+                ctx = (
+                    f"Contact: {highest['contact_name']} "
+                    f"({highest.get('contact_company','')}, "
+                    f"{highest.get('relationship_type','')}). "
+                    f"Subject: {highest['subject']}. "
+                    f"Why it nearly went cold: {highest['cold_reason']}. "
+                    "Now imagine Shram caught it overnight. Write the morning sentence."
+                )
+                sentence = (await chat.send_message(UserMessage(text=ctx))).strip().strip('"')
+                source = "gemini"
+            except Exception as e:
+                logger.error(f"Quiet close Gemini failed: {e}", exc_info=True)
+                sentence = None
+
+    if not sentence:
+        if QUIET_CLOSE_POOL:
+            sentence = str(random.choice(QUIET_CLOSE_POOL)["quiet_close_sentence"])
+        else:
+            sentence = "A thread that mattered stayed warm today. You did not lose that one."
+
+    share_text = f"Started my day with this from Shram. Worth trying.\n\n— {sentence}"
+    return QuietCloseResponse(sentence=sentence, share_text=share_text, source=source)
+
+
+@api_router.post("/exp/quiet-close/share")
+async def record_quiet_close_share(payload: ShareIntent):
+    doc = {
+        "id": str(uuid.uuid4()),
+        "sentence": payload.sentence,
+        "session_id": payload.session_id,
+        "channel": payload.channel or "copy",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.exp_quiet_close_shares.insert_one(doc)
+    total = await db.exp_quiet_close_shares.count_documents({})
+    return {"ok": True, "total_shares": total}
+
+
+@api_router.get("/exp/results")
+async def experiments_results():
+    """Aggregate experiments results — what the founders see when they review."""
+    framing_a = await db.exp_framing_votes.count_documents({"choice": "A"})
+    framing_b = await db.exp_framing_votes.count_documents({"choice": "B"})
+    dread = {}
+    for k in ("investor", "contractor", "warm_intro"):
+        dread[k] = await db.exp_dread_votes.count_documents({"bucket": k})
+    quiet_shares = await db.exp_quiet_close_shares.count_documents({})
+    return {
+        "exp01_framing": {
+            "A_productivity": framing_a,
+            "B_anxiety_removal": framing_b,
+            "total": framing_a + framing_b,
+        },
+        "exp02_dread": {**dread, "total": sum(dread.values())},
+        "exp04_quiet_close_shares": quiet_shares,
     }
 
 
