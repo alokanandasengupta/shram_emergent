@@ -49,3 +49,21 @@ MONGO_URL=... DB_NAME=... EMERGENT_LLM_KEY=... uvicorn server:app --reload
 # frontend
 cd frontend && yarn install && yarn start
 ```
+
+## Testing
+
+```bash
+cd backend && pip install -r requirements.txt pytest  # minus emergentintegrations, see below
+python -m pytest tests/test_server.py -v
+```
+
+28 tests covering the prompt-building, the JSON-array parser that guards
+against a malformed/prose-wrapped LLM response, the balanced few-shot/inbox
+samplers (run against the real committed dataset), and the dread-bucket
+classifier. `emergentintegrations` (the Gemini SDK wrapper) is a private
+package from the emergent.sh build platform, not on public PyPI — it's
+stubbed out in `tests/conftest.py` since it's only used inside the async
+Gemini-calling function, which these tests don't exercise. Runs in CI on
+every push. `tests/backend_test.py` and `tests/test_experiments.py` are
+pre-existing live-integration tests against a deployed instance + real
+Gemini API — not run in CI.

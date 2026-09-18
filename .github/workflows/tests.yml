@@ -1,0 +1,37 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          # emergentintegrations is a private package (emergent.sh build
+          # platform, not on PyPI) so it's excluded here -- it's only used
+          # inside the async Gemini-calling function, which tests/test_server.py
+          # doesn't exercise (see tests/conftest.py for the stub that makes
+          # that safe).
+          grep -v '^emergentintegrations' requirements.txt > /tmp/reqs.txt
+          pip install -r /tmp/reqs.txt
+          pip install pytest
+
+      - name: Run tests
+        working-directory: backend
+        # Scoped to test_server.py deliberately: backend_test.py and
+        # test_experiments.py are pre-existing live-integration tests that
+        # hit a deployed server + real Gemini API and aren't meant for CI.
+        run: python -m pytest tests/test_server.py -v
